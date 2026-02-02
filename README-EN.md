@@ -68,8 +68,8 @@ If you want to run from source or contribute to development:
 ### Step 1: Clone Repository
 
 ```bash
-git clone https://github.com/IrvinZheng/trustclaw_security.git
-cd trustclaw_security
+git clone https://github.com/GenTelLab/trustclaw.git
+cd trustclaw
 ```
 
 ### Step 2: Install Dependencies
@@ -208,7 +208,7 @@ npm install
 Ensure main project is built:
 
 ```bash
-cd /path/to/trustclaw_security
+cd /path/to/trustclaw
 pnpm build
 ```
 
@@ -426,8 +426,8 @@ python scripts/game_gen.py --mode ai \
 ## 📞 Get Help
 
 - 📖 [Full Documentation](https://docs.trustclaw.ai)
-- 🐛 [Report Issues](https://github.com/IrvinZheng/trustclaw_security/issues)
-- 💬 [Community Discussions](https://github.com/IrvinZheng/trustclaw_security/discussions)
+- 🐛 [Report Issues](https://github.com/GenTelLab/trustclaw/issues)
+- 💬 [Community Discussions](https://github.com/GenTelLab/trustclaw/discussions)
 
 ---
 
