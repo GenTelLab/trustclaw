@@ -1,0 +1,162 @@
+git clone https://github.com/openclaw/openclaw.git
+cd openclaw
+
+pnpm install
+pnpm ui:build # auto-installs UI deps on first run
+pnpm build
+
+pnpm openclaw onboard --install-daemon
+pnpm openclaw gateway run --port 18789 --bind loopback
+
+# Dev loop (auto-reload on TS changes)
+pnpm gateway:watch
+
+
+
+智普：e8f58db5aec941d880ae50f0a89208b6.Oldlc9qQ2zdy3EBB
+
+
+
+
+git config --global url."https://github.com/".insteadOf git@github.com:
+
+pnpm install --verbose
+
+
+
+BACKEND_SERVER
+http://100.100.30.235:34252
+
+http://backend-amd.yfcxzxbj-dev:8080
+
+npm install -g electron@^32.0.0
+
+
+http://10.250.117.172:8100/cmcc-tenant/uap/loginCheck
+
+
+
+# 方式1: 使用向导配置
+openclaw onboard
+
+# 方式2: 单独配置某个频道
+openclaw channels login telegram
+openclaw channels login whatsapp
+openclaw channels login discord
+
+
+
+http://10.250.117.172:8100/cmcc-tenant/uap/loginCheck
+
+CT_DMX_S_977102
+
+
+
+openclaw doctor --generate-gateway-token
+
+运行 PowerShell: [Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Minimum 0 -Maximum 256 }))
+我可以在 Windows GUI 中添加一个"生成 Gateway Token"按钮，自动生成并保存到配置中。
+
+
+
+
+
+
+
+
+curl -X POST 'http://47.97.114.150:8080/api/token/deduct' -H "Content-Type: application/json" -d '{"token":"sk-test","texts":["测试"]}'
+
+
+1、agent管理
+2、接口协议
+关闭F12控制台
+3、打包成exe·······················
+
+直接双击 apps/windows/build.bat 文件即可自动构建安装包。
+
+
+cd D:\01-code\moltbot\apps\windows
+powershell -ExecutionPolicy Bypass -File build-installer.ps1
+
+
+apps/windows/dist/OpenClaw SecurityAudit-CN-Setup-2026.1.29.exe
+
+
+curl -X POST http://47.97.114.150:8080/api/token/deduct \
+  -H "Content-Type: application/json" \
+  -d '{"token":"sk-test","texts":["测试"]}'
+
+
+
+修改D:\01-code\moltbot\plan\1.txt 文本，写入一段《西游记》小说100字的片段
+
+安全接口配置后，它的接口访问如：
+curl -X POST http://47.97.114.150:8080/api/token/deduct \
+  -H "Content-Type: application/json" \
+  -d '{"token":"sk-test","texts":["测试"]}'
+正确返回时主要的信息是data.data.mainLabel
+{
+    "code": 200,
+    "message": "操作成功",
+    "data": {
+        "token": "sk-test",
+        "success": true,
+        "deductAmount": 1,
+        "balanceBefore": 996,
+        "balanceAfter": 995,
+        "requestId": "e6d737747730453aa082c57771f87cf4",
+        "processTime": "2026-01-31 16:52:28",
+        "idempotentHit": false,
+        "data": [
+            {
+                "text": "测试",
+                "mainLabel": "normal",
+                "mainConfidence": 1.0
+            }
+        ]
+    },
+    "requestId": "e6d737747730453aa082c57771f87cf4",
+    "timestamp": "2026-01-31 16:52:28"
+}
+
+============
+normal	合规内容	low	可放行
+porn	色情内容	critical	阻止发送
+politics	政治内容	high	需要确认
+violence	恐暴内容	critical	阻止发送
+illegal	违禁内容	critical	阻止发送
+discrimination	歧视内容	high	需要确认
+unethitical	不良内容	medium	需要确认
+
+
+1、酷炫的skills
+2、关闭F12
+2、打包
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

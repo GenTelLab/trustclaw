@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>clawdbot-Win-SA.exe</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-content">
+        <img src="logo.png" alt="OpenClaw Logo" class="header-logo">
+        <h1>安全版</h1>
+      </div>
+    </header>
+
+    <div class="main-content">
+      <nav class="sidebar">
+        <ul>
+          <li><a href="#" data-tab="security">安全配置</a></li>
+          <li><a href="#" data-tab="channels">频道管理</a></li>
+          <li><a href="#" data-tab="skills">技能管理</a></li>
+          <li><a href="#" data-tab="cli">CLI执行</a></li>
+        </ul>
+      </nav>
+
+      <main class="content-area">
+        <!-- 安全配置面板 -->
+        <div id="security-tab" class="tab-content active">
+          <h2>安全配置</h2>
+          
+          <section class="config-section">
+            <h3>安全网关配置</h3>
+            <div class="form-group">
+              <label>
+                <input type="checkbox" id="security-gateway-enabled" checked>
+                启用安全网关
+              </label>
+            </div>
+            <div class="form-group">
+              <label for="security-base-url">安全接口URL (SecurityBaseUrl):</label>
+              <input type="text" id="security-base-url" placeholder="https://your-security-api.com/check">
+            </div>
+            <div class="form-group">
+              <label for="security-token">安全接口Token (SecurityToken):</label>
+              <input type="password" id="security-token" placeholder="输入安全接口Token">
+            </div>
+            <div class="form-group">
+              <label for="security-timeout">超时时间 (毫秒):</label>
+              <input type="number" id="security-timeout" value="5000" min="1000" max="30000">
+            </div>
+          </section>
+
+          <section class="config-section">
+            <h3>Bot安全开关</h3>
+            <div class="switch-grid">
+              <label class="switch-item">
+                <input type="checkbox" id="dm-policy-pairing" checked>
+                <span>DM配对策略 (默认开启)</span>
+              </label>
+              <label class="switch-item">
+                <input type="checkbox" id="group-policy-allowlist" checked>
+                <span>群组白名单策略 (默认开启)</span>
+              </label>
+              <label class="switch-item">
+                <input type="checkbox" id="elevated-tools-gate" checked>
+                <span>提升工具权限门控 (默认开启)</span>
+              </label>
+              <label class="switch-item">
+                <input type="checkbox" id="sandbox-mode" checked>
+                <span>沙箱模式 (默认开启)</span>
+              </label>
+              <label class="switch-item">
+                <input type="checkbox" id="logging-redact-sensitive" checked>
+                <span>日志敏感信息脱敏 (默认开启)</span>
+              </label>
+            </div>
+          </section>
+
+          <div class="config-actions">
+            <button id="save-security-config" class="btn-primary">保存配置</button>
+            <button id="start-clawdbot-btn" class="btn-success">启动Bot</button>
+          </div>
+        </div>
+
+        <!-- 频道管理面板 -->
+        <div id="channels-tab" class="tab-content">
+          <h2>频道管理</h2>
+          <div id="channels-list">
+            <p style="color: #666;">正在加载频道配置...</p>
+          </div>
+        </div>
+
+        <!-- 技能管理面板 -->
+        <div id="skills-tab" class="tab-content">
+          <h2>技能管理</h2>
+          
+          <section class="config-section skill-card">
+            <div class="skill-header">
+              <span class="skill-icon">🎮</span>
+              <div class="skill-info">
+                <h3>Game Code / 游戏代码</h3>
+                <p class="skill-desc">让AI帮你完成HTML5游戏代码开发，支持模板生成和AI实时编写</p>
+              </div>
+              <div class="skill-status ready">
+                <input type="checkbox" id="skill-gamecode-enabled" checked>
+                <span>已启用</span>
+              </div>
+            </div>
+            
+            <div class="skill-config" id="skill-gamecode-config">
+              <div class="form-group">
+                <label for="gamecode-output-dir">输出目录 (空文件夹):</label>
+                <div class="input-with-btn">
+                  <input type="text" id="gamecode-output-dir" placeholder="D:\games\my-game">
+                  <button id="gamecode-browse-btn" class="btn-secondary btn-small">浏览...</button>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="gamecode-mode">生成模式:</label>
+                <select id="gamecode-mode">
+                  <option value="template">模板模式 (快速生成经典游戏)</option>
+                  <option value="ai">AI模式 (自定义游戏需求)</option>
+                </select>
+              </div>
+              
+              <div id="gamecode-template-options">
+                <div class="form-group">
+                  <label for="gamecode-type">游戏类型:</label>
+                  <select id="gamecode-type">
+                    <option value="snake">🐍 贪吃蛇</option>
+                    <option value="tetris">🧱 俄罗斯方块</option>
+                    <option value="breakout">🎯 打砖块</option>
+                    <option value="pong">🏓 乒乓球</option>
+                    <option value="flappy">🐦 跳跃小鸟</option>
+                    <option value="memory">🃏 记忆翻牌</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="gamecode-title">游戏标题 (可选):</label>
+                  <input type="text" id="gamecode-title" placeholder="我的小游戏">
+                </div>
+              </div>
+              
+              <div id="gamecode-ai-options" style="display: none;">
+                <div class="form-group">
+                  <label for="gamecode-prompt">游戏需求描述:</label>
+                  <textarea id="gamecode-prompt" rows="3" placeholder="例如: 创建一个太空射击游戏，玩家控制飞船躲避陨石并射击敌人，要有分数和生命值显示"></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="gamecode-model">AI模型:</label>
+                  <select id="gamecode-model">
+                    <option value="gpt-4o">GPT-4o (OpenAI)</option>
+                    <option value="gpt-4o-mini">GPT-4o Mini (OpenAI)</option>
+                    <option value="claude-3-5-sonnet">Claude 3.5 Sonnet (Anthropic)</option>
+                    <option value="deepseek-chat">DeepSeek Chat</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="gamecode-apikey">API Key (留空则使用环境变量):</label>
+                  <input type="password" id="gamecode-apikey" placeholder="sk-...">
+                </div>
+              </div>
+            </div>
+            
+            <div class="skill-actions">
+              <button id="skill-gamecode-config-btn" class="btn-secondary">⚙️ 配置</button>
+              <button id="skill-gamecode-run-btn" class="btn-primary">▶️ 执行</button>
+              <button id="skill-gamecode-stop-btn" class="btn-secondary" disabled>⏹️ 停止</button>
+              <button id="skill-gamecode-open-btn" class="btn-secondary" disabled>📂 打开目录</button>
+            </div>
+            
+            <div class="skill-output" id="skill-gamecode-output" style="display: none;">
+              <h4>执行输出</h4>
+              <div class="skill-output-content"></div>
+            </div>
+          </section>
+          
+          <div class="skills-info">
+            <p>💡 提示: 更多技能请通过 CLI 执行 <code>openclaw skills status</code> 查看</p>
+          </div>
+        </div>
+
+        <!-- CLI执行面板 -->
+        <div id="cli-tab" class="tab-content">
+          <h2>CLI执行</h2>
+          <div class="cli-controls">
+            <input type="text" id="cli-command" placeholder="输入 openclaw 命令 (例如: gateway --port 18789)">
+            <button id="execute-cli-btn" class="btn-primary">执行</button>
+            <button id="stop-cli-btn" class="btn-secondary">停止</button>
+          </div>
+          <div id="cli-output" class="cli-output"></div>
+          
+          <!-- 日志输出（集成在CLI执行面板中） -->
+          <div class="logs-section">
+            <h3>执行日志</h3>
+            <div id="logs-output" class="logs-output"></div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

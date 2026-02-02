@@ -1,0 +1,129 @@
+{
+  "name": "openclaw-security-audit",
+  "productName": "OpenClaw SecurityAudit-CN",
+  "version": "2026.1.29",
+  "description": "OpenClaw SecurityAudit-CN - 安全审计网关控制台",
+  "main": "main.js",
+  "type": "module",
+  "author": {
+    "name": "OpenClaw",
+    "email": "support@openclaw.ai"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dev": "node launch.js . --dev",
+    "build": "electron-builder --win",
+    "build:win": "electron-builder --win nsis",
+    "build:mac": "electron-builder --mac",
+    "build:mac:dmg": "electron-builder --mac dmg",
+    "build:mac:pkg": "electron-builder --mac pkg",
+    "build:portable": "electron-builder --win portable",
+    "build:nsis": "electron-builder --win nsis",
+    "build:all": "electron-builder --win --mac",
+    "fix-electron": "powershell -ExecutionPolicy Bypass -File fix-electron.ps1"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "32.3.3",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "ai.openclaw.security-audit",
+    "productName": "OpenClaw SecurityAudit-CN",
+    "copyright": "Copyright © 2026 OpenClaw",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "launch.js",
+      "renderer/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../../dist/control-ui",
+        "to": "control-ui",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "packaged-openclaw",
+        "to": "openclaw",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "../../skills",
+        "to": "skills",
+        "filter": ["**/*.md", "**/*.py", "**/*.sh", "**/*.txt", "**/*.toml"]
+      },
+      {
+        "from": "nodejs/node.exe",
+        "to": "nodejs/node.exe"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "renderer/logo.png",
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "icon": "build/icon.icns",
+      "category": "public.app-category.developer-tools",
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    },
+    "pkg": {
+      "installLocation": "/Applications",
+      "allowAnywhere": true,
+      "allowCurrentUserHome": true,
+      "allowRootDirectory": true
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "OpenClaw SecurityAudit-CN",
+      "runAfterFinish": true,
+      "installerLanguages": ["zh_CN", "en_US"],
+      "language": "2052",
+      "include": "installer.nsh"
+    },
+    "portable": {
+      "artifactName": "${productName}-Portable-${version}.${ext}"
+    }
+  }
+}
