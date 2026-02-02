@@ -25,7 +25,7 @@
 
 ### 📮 如何领取
 
-前往 **[免费 Token 领取通道](https://github.com/IrvinZheng/trustclaw_security/issues/1)**，按格式留下你的信息，我们会在 0-3 个工作日内审核并通过邮件发送 Token。
+前往 **[免费 Token 领取通道](https://github.com/GenTelLab/trustclaw/issues/1)**，按格式留下你的信息，我们会在 0-3 个工作日内审核并通过邮件发送 Token。
 
 <p align="center">
   <a href="https://github.com/IrvinZheng/openclaw_security/issues/1">
