@@ -230,7 +230,7 @@ npm install
 确保已完成主项目构建：
 
 ```bash
-cd /path/to/trustclaw_security
+cd /path/to/trustclaw
 pnpm build
 ```
 
