@@ -236,31 +236,6 @@ pnpm build
 
 ---
 
-## ⚙️ 首次配置
-
-### Token 自动生成
-
-首次启动时，系统会自动生成 Gateway Token 并保存到配置文件：
-
-```
-~/.trustclaw/trustclaw.json  (用户配置)
-```
-
-配置文件示例：
-```json
-{
-  "gateway": {
-    "auth": {
-      "token": "auto-generated-secure-token"
-    }
-  }
-}
-```
-
-> 💡 **提示**：Token 用于保护 Gateway API，无需手动配置。
-
----
-
 ## 🎛️ 基本操作
 
 ### 1. 模型配置
@@ -463,9 +438,9 @@ open ./my-snake-game/index.html
 
 | 系统 | 路径 |
 |------|------|
-| Windows | `C:\Users\<用户名>\.trustclaw\trustclaw.json` |
-| macOS | `~/.trustclaw/trustclaw.json` |
-| Linux | `~/.trustclaw/trustclaw.json` |
+| Windows | `C:\Users\<用户名>\.openclaw\openclaw.json` |
+| macOS | `~/.trustclaw/openclaw.json` |
+| Linux | `~/.trustclaw/openclaw.json` |
 
 ---
 
