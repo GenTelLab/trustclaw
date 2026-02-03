@@ -15,7 +15,7 @@ set "ROOT_DIR=%~dp0..\.."
 set "APP_DIR=%~dp0"
 
 :: Step 1: Check Node.js
-echo [1/6] 检查 Node.js...
+echo [1/10] 检查 Node.js...
 where node >nul 2>&1
 if errorlevel 1 (
     echo        错误: 未找到 Node.js，请先安装 Node.js
@@ -24,24 +24,37 @@ if errorlevel 1 (
 )
 for /f "tokens=*" %%i in ('node --version') do echo        Node.js: %%i
 
-:: Step 2: Check if dist exists
-echo [2/6] 检查主项目构建状态...
-if exist "%ROOT_DIR%\dist\entry.js" (
-    echo        已构建，跳过
-) else (
-    echo        需要构建主项目，请先运行: npm run build
+:: Step 2: Build main project (TypeScript)
+echo [2/10] 编译主项目 (TypeScript)...
+pushd "%ROOT_DIR%"
+call npx tsc -p tsconfig.json
+if errorlevel 1 (
+    echo        错误: TypeScript 编译失败
+    popd
     pause
     exit /b 1
 )
+:: Run post-build scripts
+call node --import tsx scripts/copy-hook-metadata.ts 2>nul
+call node --import tsx scripts/write-build-info.ts 2>nul
+popd
+echo        编译完成
 
-:: Step 3: Check control-ui
-echo [3/6] 检查 Control UI 构建状态...
-if exist "%ROOT_DIR%\dist\control-ui\index.html" (
-    echo        已构建，跳过
+:: Step 3: Build control-ui
+echo [3/10] 编译 Control UI...
+if not exist "%ROOT_DIR%\dist\control-ui\index.html" (
+    pushd "%ROOT_DIR%\ui"
+    call npm run build
+    if errorlevel 1 (
+        echo        错误: Control UI 编译失败
+        popd
+        pause
+        exit /b 1
+    )
+    popd
+    echo        编译完成
 ) else (
-    echo        需要构建 Control UI，请先运行: cd ui ^&^& npm run build
-    pause
-    exit /b 1
+    echo        已存在，跳过（如需重新编译，请删除 dist\control-ui 目录）
 )
 
 :: Step 4: Prepare default .openclaw directory

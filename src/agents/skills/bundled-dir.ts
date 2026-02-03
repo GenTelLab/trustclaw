@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 export function resolveBundledSkillsDir(): string | undefined {
   const override = process.env.OPENCLAW_BUNDLED_SKILLS_DIR?.trim();
-  if (override) return override;
+  if (override && fs.existsSync(override)) return override;
 
   // Electron packaged app: check resources/skills (process.resourcesPath is set by Electron)
   try {
@@ -13,6 +13,20 @@ export function resolveBundledSkillsDir(): string | undefined {
       const electronSkills = path.join(resourcesPath, "skills");
       if (fs.existsSync(electronSkills)) return electronSkills;
     }
+  } catch {
+    // ignore
+  }
+
+  // Packaged Electron app with external Node.js:
+  // Structure: resources/openclaw/dist/entry.js, resources/skills/
+  // From this module (dist/agents/skills/bundled-dir.js), go up to find resources/skills
+  try {
+    const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+    // moduleDir = .../resources/openclaw/dist/agents/skills
+    // Go up to resources: openclaw/dist/agents/skills -> openclaw/dist/agents -> openclaw/dist -> openclaw -> resources
+    const resourcesDir = path.resolve(moduleDir, "..", "..", "..", "..");
+    const resourcesSkills = path.join(resourcesDir, "skills");
+    if (fs.existsSync(resourcesSkills)) return resourcesSkills;
   } catch {
     // ignore
   }
