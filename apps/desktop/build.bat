@@ -112,18 +112,18 @@ echo        配置文件已生成（token 和 workspace 路径将在安装时替
 
 :: Step 5: Prepare packaged-openclaw (使用 PowerShell 脚本正确处理 pnpm 依赖)
 echo [5/10] 准备 packaged-openclaw 目录...
-if not exist "packaged-openclaw\dist\entry.js" (
-    echo        使用 prepare-openclaw.ps1 准备目录...
-    powershell -ExecutionPolicy Bypass -File "scripts\prepare-openclaw.ps1"
-    if errorlevel 1 (
-        echo        错误: prepare-openclaw.ps1 执行失败
-        pause
-        exit /b 1
-    )
-    echo        完成
-) else (
-    echo        已存在，跳过（如需重新生成，请删除 packaged-openclaw 目录）
+if exist "packaged-openclaw" (
+    echo        删除旧目录...
+    rmdir /s /q "packaged-openclaw"
 )
+echo        使用 prepare-openclaw.ps1 准备目录...
+powershell -ExecutionPolicy Bypass -File "scripts\prepare-openclaw.ps1"
+if errorlevel 1 (
+    echo        错误: prepare-openclaw.ps1 执行失败
+    pause
+    exit /b 1
+)
+echo        完成
 
 :: Step 6: Clean node_modules (remove unnecessary files)
 echo [6/10] 清理 node_modules 减少文件数量...
