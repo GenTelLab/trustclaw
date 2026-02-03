@@ -1,7 +1,7 @@
-# OpenClaw SecurityAudit-CN 使用指南
+# TrustClaw 使用指南
 
 <p align="center">
-  <img src="renderer/logo.png" alt="OpenClaw Logo" width="120" />
+  <img src="renderer/logo.png" alt="TrustClaw Logo" width="120" />
 </p>
 
 <p align="center">
@@ -19,15 +19,19 @@
    
    从 [Releases](../../releases) 页面下载最新版本：
    ```
-   OpenClaw SecurityAudit-CN-Setup-2026.x.xx.exe
+   TrustClaw-Setup-2026.x.xx.exe
    ```
 
 2. **运行安装程序**
    
-   - 双击 `.exe` 文件启动安装向导
+   - **右键点击** `.exe` 文件，选择 **「以管理员身份运行」**
    - 选择安装目录（默认即可）
    - 点击「安装」等待完成
-   - 勾选「运行 OpenClaw SecurityAudit-CN」后点击「完成」
+   - 勾选「运行 TrustClaw」后点击「完成」
+
+   > ⚠️ **重要提示**：
+   > - 建议以 **管理员身份** 运行安装程序，避免权限问题
+   > - 安装路径请尽量避免包含中文或特殊字符，推荐使用纯英文路径，如 `C:\Program Files\TrustClaw` 或 `D:\Apps\TrustClaw`。中文路径可能导致某些模块加载失败
 
 3. **首次启动**
    
@@ -40,8 +44,8 @@
 
 1. **下载 DMG**
    ```
-   OpenClaw SecurityAudit-CN-2026.x.xx-arm64.dmg  # Apple Silicon
-   OpenClaw SecurityAudit-CN-2026.x.xx-x64.dmg    # Intel
+   TrustClaw-2026.x.xx-arm64.dmg  # Apple Silicon
+   TrustClaw-2026.x.xx-x64.dmg    # Intel
    ```
 
 2. **安装应用**
@@ -299,5 +303,5 @@ open ./my-snake-game/index.html
 ---
 
 <p align="center">
-  <sub>Built with ❤️ by OpenClaw Team</sub>
+  <sub>Built with ❤️ by TrustClaw Team</sub>
 </p>

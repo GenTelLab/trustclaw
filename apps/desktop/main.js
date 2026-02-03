@@ -6,9 +6,31 @@ import { join, dirname } from "path";
 import { homedir } from "os";
 
 const CONFIG_PATH = join(homedir(), ".openclaw", "openclaw.json");
+const WORKSPACE_PATH = join(homedir(), ".openclaw", "workspace");
 
 // 判断是否是打包后的应用
 const isPackaged = app.isPackaged;
+
+// 修复配置文件中的路径占位符（首次启动时）
+async function fixConfigPaths() {
+  try {
+    if (!existsSync(CONFIG_PATH)) return;
+    
+    const content = await readFile(CONFIG_PATH, "utf-8");
+    
+    // 检查是否有占位符需要替换
+    if (content.includes("__USER_WORKSPACE__")) {
+      console.log("[Config] Fixing workspace path placeholder...");
+      // Windows 路径需要双反斜杠在 JSON 中
+      const fixedWorkspace = WORKSPACE_PATH.replace(/\\/g, "\\\\");
+      const fixedContent = content.replace(/__USER_WORKSPACE__/g, fixedWorkspace);
+      await writeFile(CONFIG_PATH, fixedContent, "utf-8");
+      console.log("[Config] Workspace path fixed:", WORKSPACE_PATH);
+    }
+  } catch (err) {
+    console.error("[Config] Failed to fix config paths:", err.message);
+  }
+}
 
 // 获取资源路径
 function getResourcePath(...paths) {
@@ -20,14 +42,23 @@ function getResourcePath(...paths) {
 
 // 获取 openclaw CLI 路径
 function getOpenClawPath() {
+  console.log(`[getOpenClawPath] isPackaged: ${isPackaged}`);
+  console.log(`[getOpenClawPath] resourcesPath: ${process.resourcesPath}`);
+  
   if (isPackaged) {
     // 打包后使用嵌入的独立 Node.js + entry.js（完整 dist 目录）
     const nodePath = join(process.resourcesPath, "nodejs", "node.exe");
     const openclawRoot = join(process.resourcesPath, "openclaw");
     const entryPath = join(openclawRoot, "dist", "entry.js");
     
+    console.log(`[getOpenClawPath] Checking paths:`);
+    console.log(`  nodePath: ${nodePath} (exists: ${existsSync(nodePath)})`);
+    console.log(`  openclawRoot: ${openclawRoot} (exists: ${existsSync(openclawRoot)})`);
+    console.log(`  entryPath: ${entryPath} (exists: ${existsSync(entryPath)})`);
+    
     // 优先使用完整的 openclaw 目录（包含 dist + node_modules）
     if (existsSync(nodePath) && existsSync(entryPath)) {
+      console.log(`[getOpenClawPath] Using packaged mode`);
       return { 
         node: nodePath, 
         entry: entryPath, 
@@ -37,7 +68,9 @@ function getOpenClawPath() {
     
     // 回退：旧版兼容路径
     const legacyEntryPath = join(process.resourcesPath, "openclaw-dist", "entry.js");
+    console.log(`  legacyEntryPath: ${legacyEntryPath} (exists: ${existsSync(legacyEntryPath)})`);
     if (existsSync(nodePath) && existsSync(legacyEntryPath)) {
+      console.log(`[getOpenClawPath] Using legacy packaged mode`);
       return { 
         node: nodePath, 
         entry: legacyEntryPath, 
@@ -45,17 +78,28 @@ function getOpenClawPath() {
         nodeModules: join(process.resourcesPath, "node_modules")
       };
     }
+    
+    // 找不到必要文件，记录错误
+    console.error(`[getOpenClawPath] ERROR: Required files not found!`);
+    console.error(`  Missing node.exe: ${!existsSync(nodePath)}`);
+    console.error(`  Missing entry.js: ${!existsSync(entryPath)}`);
   }
   
   // 开发模式：使用项目根目录的 dist/entry.js
   const projectRoot = join(import.meta.dirname, "..", "..");
   const devEntryPath = join(projectRoot, "dist", "entry.js");
   
+  console.log(`[getOpenClawPath] Checking dev mode:`);
+  console.log(`  projectRoot: ${projectRoot}`);
+  console.log(`  devEntryPath: ${devEntryPath} (exists: ${existsSync(devEntryPath)})`);
+  
   if (existsSync(devEntryPath)) {
+    console.log(`[getOpenClawPath] Using dev mode (node)`);
     return { useNode: true, entry: devEntryPath, cwd: projectRoot };
   }
   
   // 回退：尝试使用 pnpm openclaw
+  console.log(`[getOpenClawPath] Fallback to pnpm mode`);
   return { usePnpm: true, cwd: projectRoot };
 }
 
@@ -213,18 +257,31 @@ function createWindow() {
       gatewayProcess = spawn(getNodeCmd(), [openclawInfo.entry, ...gatewayArgs], spawnOpts);
     } else {
       // 打包模式：使用嵌入的独立 Node.js
-      const env = { ...process.env, NODE_ENV: "production" };
+      const skillsDir = join(process.resourcesPath, "skills");
+      const env = { 
+        ...process.env, 
+        NODE_ENV: "production",
+        // 确保 bundled skills 目录能被正确找到
+        OPENCLAW_BUNDLED_SKILLS_DIR: skillsDir,
+      };
       if (openclawInfo.nodeModules) {
         env.NODE_PATH = openclawInfo.nodeModules;
       }
-      gatewayProcess = spawn(openclawInfo.node, [openclawInfo.entry, ...gatewayArgs], {
+      gatewayProcess = spawn(openclawInfo.node, ["--no-deprecation", openclawInfo.entry, ...gatewayArgs], {
         ...spawnOpts,
         env,
       });
+      console.log(`[Gateway] Skills dir: ${skillsDir}`);
     }
     
     console.log(`[Gateway] Command: ${openclawInfo.usePnpm ? "pnpm openclaw" : openclawInfo.useNode ? "node entry.js" : "embedded node"}`);
     console.log(`[Gateway] Working dir: ${openclawInfo.cwd}`);
+    console.log(`[Gateway] Node path: ${openclawInfo.node || "system node"}`);
+    console.log(`[Gateway] Entry path: ${openclawInfo.entry || "N/A"}`);
+    console.log(`[Gateway] Args: ${gatewayArgs.join(" ")}`);
+    
+    // 发送详细信息到渲染进程
+    updateStatus("正在启动 Gateway", `cwd: ${openclawInfo.cwd}`);
     
     gatewayProcess.stdout.on("data", (data) => {
       const text = data.toString();
@@ -327,7 +384,10 @@ function createWindow() {
 
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // 修复配置文件中的路径占位符（首次安装后）
+  await fixConfigPaths();
+  
   createWindow();
 
   app.on("activate", () => {
@@ -485,11 +545,16 @@ ipcMain.handle("execute-cli", async (_event, args) => {
     } else if (openclawInfo.useNode) {
       cliProcess = spawn(getNodeCmd(), [openclawInfo.entry, ...args], spawnOpts);
     } else {
-      const env = { ...process.env, NODE_ENV: "production" };
+      const skillsDir = join(process.resourcesPath, "skills");
+      const env = { 
+        ...process.env, 
+        NODE_ENV: "production",
+        OPENCLAW_BUNDLED_SKILLS_DIR: skillsDir,
+      };
       if (openclawInfo.nodeModules) {
         env.NODE_PATH = openclawInfo.nodeModules;
       }
-      cliProcess = spawn(openclawInfo.node, [openclawInfo.entry, ...args], {
+      cliProcess = spawn(openclawInfo.node, ["--no-deprecation", openclawInfo.entry, ...args], {
         ...spawnOpts,
         env,
       });
@@ -549,11 +614,16 @@ ipcMain.handle("start-gateway", async (_event) => {
     } else if (openclawInfo.useNode) {
       gatewayProcess = spawn(getNodeCmd(), [openclawInfo.entry, ...gatewayArgs], spawnOpts);
     } else {
-      const env = { ...process.env, NODE_ENV: "production" };
+      const skillsDir = join(process.resourcesPath, "skills");
+      const env = { 
+        ...process.env, 
+        NODE_ENV: "production",
+        OPENCLAW_BUNDLED_SKILLS_DIR: skillsDir,
+      };
       if (openclawInfo.nodeModules) {
         env.NODE_PATH = openclawInfo.nodeModules;
       }
-      gatewayProcess = spawn(openclawInfo.node, [openclawInfo.entry, ...gatewayArgs], {
+      gatewayProcess = spawn(openclawInfo.node, ["--no-deprecation", openclawInfo.entry, ...gatewayArgs], {
         ...spawnOpts,
         env,
       });

@@ -1,8 +1,8 @@
 {
-  "name": "openclaw-security-audit",
-  "productName": "OpenClaw SecurityAudit-CN",
+  "name": "trustclaw",
+  "productName": "TrustClaw",
   "version": "2026.1.29",
-  "description": "OpenClaw SecurityAudit-CN - 安全审计网关控制台",
+  "description": "TrustClaw - AI 安全审计网关控制台",
   "main": "main.js",
   "type": "module",
   "author": {
@@ -28,9 +28,9 @@
     "electron-builder": "^25.1.8"
   },
   "build": {
-    "appId": "ai.openclaw.security-audit",
-    "productName": "OpenClaw SecurityAudit-CN",
-    "copyright": "Copyright © 2026 OpenClaw",
+    "appId": "ai.trustclaw.desktop",
+    "productName": "TrustClaw",
+    "copyright": "Copyright © 2026 TrustClaw",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -43,13 +43,22 @@
     ],
     "extraResources": [
       {
+        "from": "default-openclaw",
+        "to": "default-openclaw",
+        "filter": ["**/*"]
+      },
+      {
         "from": "../../dist/control-ui",
         "to": "control-ui",
         "filter": ["**/*"]
       },
       {
-        "from": "packaged-openclaw",
-        "to": "openclaw",
+        "from": "packaged-openclaw.zip",
+        "to": "openclaw.zip"
+      },
+      {
+        "from": "../../docs/reference/templates",
+        "to": "openclaw/docs/reference/templates",
         "filter": ["**/*"]
       },
       {
@@ -116,12 +125,14 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "OpenClaw SecurityAudit-CN",
+      "shortcutName": "TrustClaw",
       "runAfterFinish": true,
       "installerLanguages": ["zh_CN", "en_US"],
       "language": "2052",
-      "include": "installer.nsh"
+      "include": "installer.nsh",
+      "differentialPackage": false
     },
+    "compression": "maximum",
     "portable": {
       "artifactName": "${productName}-Portable-${version}.${ext}"
     }

@@ -4,6 +4,7 @@ import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { installSkill } from "../../agents/skills-install.js";
+import { resolveBundledSkillsDir } from "../../agents/skills/bundled-dir.js";
 import { buildWorkspaceSkillStatus } from "../../agents/skills-status.js";
 import { loadWorkspaceSkillEntries, type SkillEntry } from "../../agents/skills.js";
 import type { OpenClawConfig } from "../../config/config.js";
@@ -207,12 +208,17 @@ export const skillsHandlers: GatewayRequestHandlers = {
     // 查找 skill 脚本路径
     const cfg = loadConfig();
     const workspaceDir = resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg));
+    const bundledSkillsDir = resolveBundledSkillsDir();
     
     // 尝试多个可能的路径
     const possiblePaths = [
+      // workspace skills (highest priority)
       join(workspaceDir, "skills", "game-code", "scripts", "game_gen.py"),
+      // bundled skills (Electron packaged / bun compiled)
+      bundledSkillsDir ? join(bundledSkillsDir, "game-code", "scripts", "game_gen.py") : null,
+      // dev mode: relative to module
       join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "skills", "game-code", "scripts", "game_gen.py"),
-    ];
+    ].filter((p): p is string => p !== null);
     
     let scriptPath: string | null = null;
     for (const p of possiblePaths) {

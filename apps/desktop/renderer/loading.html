@@ -97,6 +97,75 @@
       color: rgba(255, 255, 255, 0.5);
       margin-top: 8px;
       font-family: monospace;
+      max-width: 600px;
+      word-break: break-all;
+    }
+
+    .error-log {
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(255, 0, 0, 0.1);
+      border: 1px solid rgba(255, 0, 0, 0.3);
+      border-radius: 8px;
+      max-width: 600px;
+      max-height: 200px;
+      overflow-y: auto;
+      text-align: left;
+      font-family: monospace;
+      font-size: 11px;
+      color: #ff6b6b;
+      display: none;
+    }
+
+    .error-log.visible {
+      display: block;
+    }
+
+    .first-time-tip {
+      display: none;
+      margin-top: 40px;
+      padding: 24px 32px;
+      background: linear-gradient(135deg, rgba(255, 165, 0, 0.15) 0%, rgba(255, 107, 107, 0.1) 100%);
+      border: 1px solid rgba(255, 165, 0, 0.3);
+      border-radius: 12px;
+      max-width: 500px;
+      text-align: center;
+      animation: slideUp 0.5s ease-out 0.5s both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tip-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .tip-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #ffa500;
+      margin-bottom: 12px;
+    }
+
+    .tip-content {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .tip-content strong {
+      color: #ffa500;
+    }
+
+    .tip-models {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .dots::after {
@@ -127,17 +196,96 @@
       <div class="spinner"></div>
       <div class="status" id="status">正在启动 Gateway<span class="dots"></span></div>
       <div class="status-detail" id="status-detail">Initializing...</div>
+      <div class="error-log" id="error-log"></div>
+    </div>
+    
+    <!-- 首次使用提示 -->
+    <div class="first-time-tip" id="first-time-tip">
+      <div class="tip-icon">🧠</div>
+      <div class="tip-title">欢迎使用 TrustClaw!</div>
+      <div class="tip-content">
+        首次使用需要配置大模型（AI 大脑）才能正常工作。<br>
+        启动后点击对话框右上角的 <strong>Agent 模型管理</strong> 添加您的 API Key。
+      </div>
+      <div class="tip-models">
+        支持的模型：OpenAI、Anthropic Claude、Google Gemini、智谱 GLM、通义千问等
+      </div>
     </div>
   </div>
 
   <script>
+    const errorLog = document.getElementById('error-log');
+    const firstTimeTip = document.getElementById('first-time-tip');
+    let hasError = false;
+
+    // 检查是否显示首次使用提示
+    async function checkFirstTimeSetup() {
+      try {
+        const config = await window.electronAPI?.loadConfig?.();
+        // 检查是否配置了有效的 API key（环境变量中）
+        const envVars = config?.env || {};
+        const hasValidApiKey = 
+          envVars.OPENAI_API_KEY || 
+          envVars.ANTHROPIC_API_KEY || 
+          envVars.ZAI_API_KEY ||
+          envVars.GEMINI_API_KEY ||
+          envVars.OPENROUTER_API_KEY;
+        
+        // 也检查 wizard 是否完成过（非默认安装状态）
+        const wizardCompleted = config?.wizard?.lastRunAt;
+        
+        // 如果没有 API key 且不是通过 wizard 配置的，显示提示
+        if (!hasValidApiKey) {
+          firstTimeTip.style.display = 'block';
+        }
+      } catch (e) {
+        // 默认显示提示
+        firstTimeTip.style.display = 'block';
+      }
+    }
+
+    // 延迟检查，确保配置已加载
+    setTimeout(checkFirstTimeSetup, 500);
+
+    function appendLog(text, isError = false) {
+      if (isError) {
+        hasError = true;
+        errorLog.classList.add('visible');
+      }
+      errorLog.textContent += text + '\n';
+      errorLog.scrollTop = errorLog.scrollHeight;
+    }
+
     // 监听来自主进程的状态更新
     window.electronAPI?.onGatewayStatus?.((status, detail) => {
       document.getElementById('status').innerHTML = status + '<span class="dots"></span>';
       if (detail) {
         document.getElementById('status-detail').textContent = detail;
+        // 如果包含错误关键字，显示在日志中
+        if (status.includes('错误') || status.includes('失败') || status.includes('Error')) {
+          appendLog(`[${new Date().toLocaleTimeString()}] ${status}: ${detail}`, true);
+        }
+      }
+      
+      // Gateway 就绪时，提示即将跳转
+      if (status.includes('就绪') || status.includes('Loading')) {
+        document.getElementById('status-detail').textContent = '即将进入控制台...';
       }
     });
+
+    // 监听 Gateway 输出
+    window.electronAPI?.onGatewayOutput?.((data) => {
+      if (data.type === 'stderr') {
+        appendLog(`[stderr] ${data.data}`, true);
+      }
+    });
+
+    // 30秒后如果还在加载，更新提示
+    setTimeout(() => {
+      if (!hasError && document.getElementById('status').textContent.includes('等待')) {
+        document.getElementById('status-detail').textContent = '首次启动可能需要较长时间，请耐心等待...';
+      }
+    }, 30000);
   </script>
 </body>
 </html>

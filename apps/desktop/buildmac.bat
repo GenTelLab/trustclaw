@@ -1,12 +1,12 @@
 @echo off
 chcp 65001 >nul
 setlocal EnableDelayedExpansion
-title TrustClaw Windows 构建工具
+title TrustClaw macOS 构建工具
 
 echo.
 echo =============================================
-echo   TrustClaw Windows 构建
-echo   (包含完整 CLI，无需安装 Node.js)
+echo   TrustClaw macOS 构建
+echo   (需要在 macOS 上运行才能生成 DMG)
 echo =============================================
 echo.
 
@@ -45,7 +45,7 @@ if exist "%ROOT_DIR%\dist\control-ui\index.html" (
 )
 
 :: Step 4: Prepare default .openclaw directory
-echo [4/10] 准备默认 .openclaw 目录...
+echo [4/8] 准备默认 .openclaw 目录...
 
 :: Generate random token
 for /f "tokens=*" %%i in ('powershell -Command "[System.Guid]::NewGuid().ToString('N') + [System.Guid]::NewGuid().ToString('N').Substring(0,16)"') do set "RANDOM_TOKEN=%%i"
@@ -89,77 +89,57 @@ if exist "%SOURCE_OPENCLAW%\cron\jobs.json" (
     echo        复制 cron 完成
 )
 
-:: Create modified openclaw.json with placeholders (UTF-8 without BOM)
-powershell -Command "$json = Get-Content '%SOURCE_OPENCLAW%\openclaw.json' -Raw | ConvertFrom-Json; $json.gateway.auth.token = '__RANDOM_TOKEN__'; $json.agents.defaults.workspace = '__USER_WORKSPACE__'; if ($json.meta) { $json.meta.lastTouchedAt = (Get-Date).ToString('o') }; $content = $json | ConvertTo-Json -Depth 20; [System.IO.File]::WriteAllText('%APP_DIR%\default-openclaw\openclaw.json', $content, [System.Text.UTF8Encoding]::new($false))"
+:: Create modified openclaw.json with placeholders
+powershell -Command "$json = Get-Content '%SOURCE_OPENCLAW%\openclaw.json' -Raw | ConvertFrom-Json; $json.gateway.auth.token = '__RANDOM_TOKEN__'; $json.agents.defaults.workspace = '__USER_WORKSPACE__'; if ($json.meta) { $json.meta.lastTouchedAt = (Get-Date).ToString('o') }; $json | ConvertTo-Json -Depth 20 | Set-Content '%APP_DIR%\default-openclaw\openclaw.json' -Encoding UTF8"
 
-:: Replace placeholder with actual random token in the file (UTF-8 without BOM)
-powershell -Command "$content = (Get-Content '%APP_DIR%\default-openclaw\openclaw.json' -Raw) -replace '__RANDOM_TOKEN__', '%RANDOM_TOKEN%'; [System.IO.File]::WriteAllText('%APP_DIR%\default-openclaw\openclaw.json', $content, [System.Text.UTF8Encoding]::new($false))"
+:: Replace placeholder with actual random token in the file
+powershell -Command "(Get-Content '%APP_DIR%\default-openclaw\openclaw.json' -Raw) -replace '__RANDOM_TOKEN__', '%RANDOM_TOKEN%' | Set-Content '%APP_DIR%\default-openclaw\openclaw.json' -Encoding UTF8"
 
 echo        配置文件已生成（token 和 workspace 路径将在安装时替换）
 
-:: Step 5: Prepare packaged-openclaw (使用 PowerShell 脚本正确处理 pnpm 依赖)
-echo [5/10] 准备 packaged-openclaw 目录...
+:: Step 5: Prepare packaged-openclaw
+echo [5/8] 准备 packaged-openclaw 目录...
 if not exist "packaged-openclaw\dist\entry.js" (
-    echo        使用 prepare-openclaw.ps1 准备目录...
-    powershell -ExecutionPolicy Bypass -File "scripts\prepare-openclaw.ps1"
-    if errorlevel 1 (
-        echo        错误: prepare-openclaw.ps1 执行失败
-        pause
-        exit /b 1
-    )
+    echo        复制文件中...
+    if not exist "packaged-openclaw" mkdir "packaged-openclaw"
+    xcopy "%ROOT_DIR%\dist" "packaged-openclaw\dist\" /E /I /Y /Q >nul 2>&1
+    xcopy "%ROOT_DIR%\node_modules" "packaged-openclaw\node_modules\" /E /I /Y /Q >nul 2>&1
+    copy "%ROOT_DIR%\package.json" "packaged-openclaw\" /Y >nul 2>&1
     echo        完成
 ) else (
-    echo        已存在，跳过（如需重新生成，请删除 packaged-openclaw 目录）
+    echo        已存在，跳过
 )
 
 :: Step 6: Clean node_modules (remove unnecessary files)
-echo [6/10] 清理 node_modules 减少文件数量...
-if exist "packaged-openclaw\node_modules" (
-    powershell -ExecutionPolicy Bypass -File "scripts\clean-node-modules.ps1" -Path "packaged-openclaw\node_modules"
-)
+echo [6/8] 清理 node_modules 减少文件数量...
+powershell -ExecutionPolicy Bypass -File "scripts\clean-node-modules.ps1" -Path "packaged-openclaw\node_modules"
 
-:: Step 7: Verify modules integrity
-echo [7/10] 验证模块完整性...
-powershell -ExecutionPolicy Bypass -File "scripts\verify-modules.ps1" -Path "packaged-openclaw"
-if errorlevel 1 (
-    echo        错误: 模块验证失败，请检查上方错误信息
-    pause
-    exit /b 1
-)
-
-:: Step 8: Compress packaged-openclaw to zip (much faster installation)
-echo [8/10] 压缩 packaged-openclaw 加速安装...
-if exist "packaged-openclaw.zip" del "packaged-openclaw.zip"
-powershell -Command "Compress-Archive -Path 'packaged-openclaw\*' -DestinationPath 'packaged-openclaw.zip' -CompressionLevel Optimal -Force"
-if errorlevel 1 (
-    echo        错误: 压缩失败
-    pause
-    exit /b 1
-)
-for %%f in (packaged-openclaw.zip) do echo        压缩完成: %%~zf bytes
-
-:: Step 9: Check embedded Node.js
-echo [9/10] 检查嵌入式 Node.js...
-if not exist "nodejs\node.exe" (
-    echo        错误: nodejs\node.exe 不存在
-    echo        请下载 Node.js Windows 版本并解压到 nodejs 目录
-    pause
-    exit /b 1
-)
+:: Step 7: Install app dependencies
+echo [7/8] 安装依赖...
+call npm install --silent 2>nul
 echo        OK
 
-:: Step 10: Install dependencies and build
-echo [10/10] 安装依赖并构建安装包...
-call npm install --silent 2>nul
+:: Step 8: Build macOS installer
+echo [8/8] 构建 macOS 安装包...
+echo.
+echo        注意: 在 Windows 上构建 Mac 版本有以下限制:
+echo        - 无法生成 DMG 格式 (需要 macOS)
+echo        - 无法进行代码签名和公证
+echo        - 将生成 .zip 格式的 Mac 应用
 echo.
 
-call npx electron-builder --win nsis --x64
+:: Build for macOS (zip format, works on Windows)
+call npx electron-builder --mac zip --x64
 
 if errorlevel 1 (
     echo.
     echo =============================================
-    echo   构建失败！请检查上方错误信息
+    echo   构建失败！
     echo =============================================
+    echo.
+    echo   如果需要完整的 DMG 安装包，请在 macOS 上运行:
+    echo   cd apps/desktop ^&^& ./build-mac.sh
+    echo.
 ) else (
     echo.
     echo =============================================
@@ -168,13 +148,11 @@ if errorlevel 1 (
     echo.
     echo 安装包位置: %APP_DIR%dist
     echo.
-    
-    for %%f in (dist\*.exe) do (
-        echo 生成文件: %%f
-    )
+    echo 注意: 生成的是 .zip 格式，如需 DMG 请在 macOS 上构建
     echo.
     
-    if exist "dist\*.exe" (
+    :: Open dist folder
+    if exist "dist\*.zip" (
         explorer "dist"
     )
 )

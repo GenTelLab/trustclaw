@@ -25,7 +25,7 @@
 
 ### 📮 如何领取
 
-前往 **[免费 Token 领取通道](https://github.com/GenTelLab/trustclaw/issues/1)**，按格式留下你的信息，我们会在 0-3 个工作日内审核并通过邮件发送 Token。
+前往 **[免费 Token 领取通道](https://github.com/IrvinZheng/trustclaw_security/issues/1)**，按格式留下你的信息，我们会在 0-3 个工作日内审核并通过邮件发送 Token。
 
 <p align="center">
   <a href="https://github.com/IrvinZheng/openclaw_security/issues/1">
@@ -90,8 +90,8 @@
 ### 步骤一：克隆仓库
 
 ```bash
-git clone https://github.com/GenTelLab/trustclaw.git
-cd trustclaw
+git clone https://github.com/IrvinZheng/trustclaw_security.git
+cd trustclaw_security
 ```
 
 ### 步骤二：安装依赖
@@ -230,9 +230,11 @@ npm install
 确保已完成主项目构建：
 
 ```bash
-cd /path/to/trustclaw
+cd /path/to/trustclaw_security
 pnpm build
 ```
+
+> 💡 **提示**：Token 用于保护 Gateway API，无需手动配置。
 
 ---
 
@@ -439,16 +441,16 @@ open ./my-snake-game/index.html
 | 系统 | 路径 |
 |------|------|
 | Windows | `C:\Users\<用户名>\.openclaw\openclaw.json` |
-| macOS | `~/.trustclaw/openclaw.json` |
-| Linux | `~/.trustclaw/openclaw.json` |
+| macOS | `~/.openclaw/openclaw.json` |
+| Linux | `~/.openclaw/openclaw.json` |
 
 ---
 
 ## 📞 获取帮助
 
 - 📖 [TrustClaw文档](https://docs.trustclaw.ai)
-- 🐛 [报告问题](https://github.com/GenTelLab/trustclaw/issues)
-- 💬 [社区讨论](https://github.com/GenTelLab/trustclaw/discussions)
+- 🐛 [报告问题](https://github.com/IrvinZheng/trustclaw_security/issues)
+- 💬 [社区讨论](https://github.com/IrvinZheng/trustclaw_security/discussions)
 
 ---
 

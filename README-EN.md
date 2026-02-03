@@ -7,8 +7,30 @@
 </p>
 
 <p align="center">
-  <strong>AI Security Audit Gateway Console</strong><br>
+  <strong>AI Security Audit Terminal Agent</strong><br>
   One-stop management for AI tool call security detection, model configuration, and skill extensions
+</p>
+
+---
+
+## 🎁 Free API & Token Benefits
+
+> **Great News!** We provide **free Security Audit API Tokens** for community contributors to support your AI security development journey!
+
+### ✅ Eligibility
+
+- Starred this project ⭐
+- Submitted an Issue / Pull Request
+- Or an active user of the project
+
+### 📮 How to Claim
+
+Visit the **[Free Token Claim Channel](https://github.com/IrvinZheng/trustclaw_security/issues/1)**, leave your information in the required format, and we will review and send the Token via email within 0-3 business days.
+
+<p align="center">
+  <a href="https://github.com/IrvinZheng/openclaw_security/issues/1">
+    <img src="https://img.shields.io/badge/🎁_Claim_Free_Token-Click_Here-brightgreen?style=for-the-badge" alt="Claim Free Token" />
+  </a>
 </p>
 
 ---
@@ -68,8 +90,8 @@ If you want to run from source or contribute to development:
 ### Step 1: Clone Repository
 
 ```bash
-git clone https://github.com/GenTelLab/trustclaw.git
-cd trustclaw
+git clone https://github.com/IrvinZheng/trustclaw_security.git
+cd trustclaw_security
 ```
 
 ### Step 2: Install Dependencies
@@ -208,9 +230,11 @@ npm install
 Ensure main project is built:
 
 ```bash
-cd /path/to/trustclaw
+cd /path/to/trustclaw_security
 pnpm build
 ```
+
+> 💡 **Tip**: Token protects the Gateway API, no manual configuration needed.
 
 ---
 
@@ -286,20 +310,20 @@ Go to **Security** page to configure security policies:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Game Code Skill                       │
+│                    Game Code Skill                      │
 ├─────────────────────────────────────────────────────────┤
-│  📦 Template Mode       │  🤖 AI Generation Mode         │
-│  ─────────────────      │  ─────────────────             │
-│  • Snake                │  • Natural language prompts    │
-│  • Tetris               │  • GPT-4o / Claude generates   │
-│  • Breakout             │  • Fully custom game logic     │
-│  • Pong                 │                                │
-│  • Flappy Bird          │                                │
-│  • Memory Match         │                                │
+│  📦 Template Mode       │  🤖 AI Generation Mode        │
+│  ─────────────────      │  ─────────────────            │
+│  • Snake                │  • Natural language prompts   │
+│  • Tetris               │  • GPT-4o / Claude generates  │
+│  • Breakout             │  • Fully custom game logic    │
+│  • Pong                 │                               │
+│  • Flappy Bird          │                               │
+│  • Memory Match         │                               │
 └─────────────────────────────────────────────────────────┘
 ```
 
-### Usage
+### Command Line Usage
 
 #### Method 1: Template Mode (Quick Generation)
 
@@ -347,6 +371,30 @@ python scripts/game_gen.py --mode ai \
 | `claude-3-5-sonnet` | `ANTHROPIC_API_KEY` | Creative |
 | `deepseek-chat` | `DEEPSEEK_API_KEY` | Cost-effective |
 
+### Output Structure
+
+Each generated game has the following directory structure:
+
+```
+~/games/snake/
+├── index.html   # Game main page (double-click to play)
+├── game.js      # Game logic code
+└── style.css    # Game styles
+```
+
+### Demo: Generate and Run Snake Game
+
+```bash
+# 1. Generate game
+python scripts/game_gen.py --mode template --type snake --output ./my-snake-game
+
+# 2. Open game (Windows)
+start ./my-snake-game/index.html
+
+# 2. Open game (macOS)
+open ./my-snake-game/index.html
+```
+
 ---
 
 ## 📋 Interface Navigation
@@ -393,16 +441,16 @@ python scripts/game_gen.py --mode ai \
 | System | Path |
 |--------|------|
 | Windows | `C:\Users\<username>\.openclaw\openclaw.json` |
-| macOS | `~/.trustclaw/openclaw.json` |
-| Linux | `~/.trustclaw/openclaw.json` |
+| macOS | `~/.openclaw/openclaw.json` |
+| Linux | `~/.openclaw/openclaw.json` |
 
 ---
 
 ## 📞 Get Help
 
-- 📖 [Full Documentation](https://docs.trustclaw.ai)
-- 🐛 [Report Issues](https://github.com/GenTelLab/trustclaw/issues)
-- 💬 [Community Discussions](https://github.com/GenTelLab/trustclaw/discussions)
+- 📖 [TrustClaw Documentation](https://docs.trustclaw.ai)
+- 🐛 [Report Issues](https://github.com/IrvinZheng/trustclaw_security/issues)
+- 💬 [Community Discussions](https://github.com/IrvinZheng/trustclaw_security/discussions)
 
 ---
 

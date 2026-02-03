@@ -1,4 +1,4 @@
-# OpenClaw SecurityAudit-CN 打包指南
+# TrustClaw 打包指南
 
 本文档介绍如何将应用打包为 **Windows EXE 安装包** 和 **macOS DMG 安装包**。
 
@@ -14,7 +14,7 @@
 
 ### Windows 独立安装包（推荐）
 
-打包包含完整 OpenClaw CLI 的独立安装包，**用户无需安装 Node.js**。
+打包包含完整 openclaw CLI 的独立安装包，**用户无需安装 Node.js**。
 
 #### 方式一：双击脚本（推荐）
 
@@ -30,16 +30,16 @@ powershell -ExecutionPolicy Bypass -File build-standalone.ps1
 ```
 
 **独立安装包特性：**
-- ✅ 包含完整 OpenClaw CLI（使用 esbuild 打包成单文件）
+- ✅ 包含完整 openclaw CLI（使用 esbuild 打包成单文件）
 - ✅ 包含 native 模块（sharp 图片处理、sqlite-vec 向量数据库）
-- ✅ 用户无需预先安装 Node.js、npm 或 OpenClaw CLI
+- ✅ 用户无需预先安装 Node.js、npm 或 openclaw CLI
 - ✅ 安装包体积约 90MB
 
 ---
 
 ### Windows 标准打包
 
-需要用户预先安装 OpenClaw CLI。
+需要用户预先安装 openclaw CLI。
 
 #### 方式一：双击脚本
 
@@ -143,15 +143,15 @@ npm run build:all
 ### Windows
 ```
 dist/
-├── OpenClaw SecurityAudit-CN-Setup-2026.1.29.exe  # NSIS 安装包
-└── OpenClaw SecurityAudit-CN-Portable-2026.1.29.exe  # 便携版
+├── TrustClaw-Setup-2026.1.29.exe  # NSIS 安装包
+└── TrustClaw-Portable-2026.1.29.exe  # 便携版
 ```
 
 ### macOS
 ```
 dist/
-├── OpenClaw SecurityAudit-CN-2026.1.29-arm64.dmg  # Apple Silicon
-└── OpenClaw SecurityAudit-CN-2026.1.29-x64.dmg    # Intel
+├── TrustClaw-2026.1.29-arm64.dmg  # Apple Silicon
+└── TrustClaw-2026.1.29-x64.dmg    # Intel
 ```
 
 ## 安装包特性
@@ -180,12 +180,12 @@ dist/
    - Windows: https://nodejs.org/
    - macOS: `brew install node`
 
-2. **全局安装 OpenClaw CLI**
+2. **全局安装 openclaw CLI**
    ```bash
    npm install -g openclaw
    ```
 
-3. **配置 OpenClaw**
+3. **配置 openclaw**
    ```bash
    openclaw onboard
    ```
@@ -205,7 +205,7 @@ dist/
 ### macOS 签名问题
 如果遇到 "应用已损坏" 或 "无法验证开发者" 错误：
 ```bash
-xattr -cr /Applications/OpenClaw\ SecurityAudit-CN.app
+xattr -cr /Applications/TrustClaw.app
 ```
 
 ### electron-builder 下载慢
