@@ -214,31 +214,6 @@ pnpm build
 
 ---
 
-## ⚙️ Initial Configuration
-
-### Auto-generated Token
-
-On first launch, the system automatically generates a Gateway Token and saves to config:
-
-```
-~/.trustclaw/trustclaw.json  (user config)
-```
-
-Config example:
-```json
-{
-  "gateway": {
-    "auth": {
-      "token": "auto-generated-secure-token"
-    }
-  }
-}
-```
-
-> 💡 **Tip**: Token protects the Gateway API, no manual configuration needed.
-
----
-
 ## 🎛️ Basic Operations
 
 ### 1. Model Configuration
@@ -417,9 +392,9 @@ python scripts/game_gen.py --mode ai \
 
 | System | Path |
 |--------|------|
-| Windows | `C:\Users\<username>\.trustclaw\trustclaw.json` |
-| macOS | `~/.trustclaw/trustclaw.json` |
-| Linux | `~/.trustclaw/trustclaw.json` |
+| Windows | `C:\Users\<username>\.openclaw\openclaw.json` |
+| macOS | `~/.trustclaw/openclaw.json` |
+| Linux | `~/.trustclaw/openclaw.json` |
 
 ---
 
