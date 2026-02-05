@@ -1,0 +1,73 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.1.29",
+    "lastTouchedAt": "2026-02-05T06:05:00.000Z"
+  },
+  "agents": {
+    "defaults": {
+      "models": {},
+      "workspace": "C:\\Users\\13018\\.openclaw\\workspace",
+      "compaction": {
+        "mode": "default"
+      },
+      "maxConcurrent": 4,
+      "subagents": {
+        "maxConcurrent": 8
+      },
+      "sandbox": {
+        "mode": "off"
+      }
+    }
+  },
+  "messages": {
+    "ackReactionScope": "group-mentions"
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto"
+  },
+  "discovery": {
+    "mdns": {
+      "mode": "off"
+    }
+  },
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "loopback",
+    "auth": {
+      "mode": "token",
+      "token": "9b692fa98b354461b4ae8a98aac3b3f45febb63be3894ef8"
+    },
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    }
+  },
+  "skills": {
+    "install": {
+      "nodeManager": "pnpm"
+    }
+  },
+  "security": {
+    "gateway": {
+      "enabled": false,
+      "timeoutMs": 30000
+    },
+    "contentAudit": {
+      "enabled": false,
+      "timeoutMs": 30000
+    }
+  },
+  "plugins": {
+    "enabled": true,
+    "slots": {
+      "memory": "none"
+    },
+    "entries": {
+      "qwen-portal-auth": {
+        "enabled": true
+      }
+    }
+  }
+}
