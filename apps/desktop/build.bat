@@ -60,55 +60,44 @@ if not exist "%ROOT_DIR%\dist\control-ui\index.html" (
 :: Step 4: Prepare default .openclaw directory
 echo [4/10] 准备默认 .openclaw 目录...
 
+:: Check if default-openclaw directory exists
+if not exist "%APP_DIR%\default-openclaw" (
+    echo        错误: default-openclaw 目录不存在
+    echo        请先准备好 apps\desktop\default-openclaw 目录
+    pause
+    exit /b 1
+)
+
+if not exist "%APP_DIR%\default-openclaw\openclaw.json" (
+    echo        错误: default-openclaw\openclaw.json 不存在
+    pause
+    exit /b 1
+)
+
 :: Generate random token
 for /f "tokens=*" %%i in ('powershell -Command "[System.Guid]::NewGuid().ToString('N') + [System.Guid]::NewGuid().ToString('N').Substring(0,16)"') do set "RANDOM_TOKEN=%%i"
 echo        Token: %RANDOM_TOKEN:~0,8%...
 
-:: Source .openclaw directory (change this path if needed)
-set "SOURCE_OPENCLAW=C:\Users\13018\.openclaw1"
+:: Update token in openclaw.json (replace __RANDOM_TOKEN__ placeholder or existing token)
+powershell -Command "$json = Get-Content '%APP_DIR%\default-openclaw\openclaw.json' -Raw | ConvertFrom-Json; if ($json.gateway -and $json.gateway.auth) { $json.gateway.auth.token = '__RANDOM_TOKEN__' }; if ($json.meta) { $json.meta.lastTouchedAt = (Get-Date).ToString('o') }; $content = $json | ConvertTo-Json -Depth 20; [System.IO.File]::WriteAllText('%APP_DIR%\default-openclaw\openclaw.json', $content, [System.Text.UTF8Encoding]::new($false))"
 
-:: Clean and create target directory
-if exist "%APP_DIR%\default-openclaw" rmdir /s /q "%APP_DIR%\default-openclaw"
-mkdir "%APP_DIR%\default-openclaw"
-
-:: Copy workspace directory (excluding memory content)
-if exist "%SOURCE_OPENCLAW%\workspace" (
-    xcopy "%SOURCE_OPENCLAW%\workspace" "%APP_DIR%\default-openclaw\workspace\" /E /I /Y /Q >nul 2>&1
-    :: Clear memory directory (no conversation history)
-    if exist "%APP_DIR%\default-openclaw\workspace\memory" (
-        del /Q "%APP_DIR%\default-openclaw\workspace\memory\*" 2>nul
-    ) else (
-        mkdir "%APP_DIR%\default-openclaw\workspace\memory" 2>nul
-    )
-    echo        复制 workspace 完成（记忆已清空）
-)
-
-:: Copy agents structure (without sessions content)
-if exist "%SOURCE_OPENCLAW%\agents" (
-    mkdir "%APP_DIR%\default-openclaw\agents\main\agent" 2>nul
-    mkdir "%APP_DIR%\default-openclaw\agents\main\sessions" 2>nul
-    if exist "%SOURCE_OPENCLAW%\agents\main\agent" (
-        xcopy "%SOURCE_OPENCLAW%\agents\main\agent" "%APP_DIR%\default-openclaw\agents\main\agent\" /E /I /Y /Q >nul 2>&1
-    )
-    :: Create empty sessions.json (no conversation history)
-    echo {"sessions":[]} > "%APP_DIR%\default-openclaw\agents\main\sessions\sessions.json"
-    echo        复制 agents 完成（会话历史已清空）
-)
-
-:: Copy cron jobs
-if exist "%SOURCE_OPENCLAW%\cron\jobs.json" (
-    mkdir "%APP_DIR%\default-openclaw\cron" 2>nul
-    copy "%SOURCE_OPENCLAW%\cron\jobs.json" "%APP_DIR%\default-openclaw\cron\" /Y >nul 2>&1
-    echo        复制 cron 完成
-)
-
-:: Create modified openclaw.json with placeholders (UTF-8 without BOM)
-powershell -Command "$json = Get-Content '%SOURCE_OPENCLAW%\openclaw.json' -Raw | ConvertFrom-Json; $json.gateway.auth.token = '__RANDOM_TOKEN__'; $json.agents.defaults.workspace = '__USER_WORKSPACE__'; if ($json.meta) { $json.meta.lastTouchedAt = (Get-Date).ToString('o') }; $content = $json | ConvertTo-Json -Depth 20; [System.IO.File]::WriteAllText('%APP_DIR%\default-openclaw\openclaw.json', $content, [System.Text.UTF8Encoding]::new($false))"
-
-:: Replace placeholder with actual random token in the file (UTF-8 without BOM)
+:: Replace placeholder with actual random token
 powershell -Command "$content = (Get-Content '%APP_DIR%\default-openclaw\openclaw.json' -Raw) -replace '__RANDOM_TOKEN__', '%RANDOM_TOKEN%'; [System.IO.File]::WriteAllText('%APP_DIR%\default-openclaw\openclaw.json', $content, [System.Text.UTF8Encoding]::new($false))"
 
-echo        配置文件已生成（token 和 workspace 路径将在安装时替换）
+:: Clear memory files (no conversation history in release build)
+if exist "%APP_DIR%\default-openclaw\workspace\memory" (
+    del /Q "%APP_DIR%\default-openclaw\workspace\memory\*" 2>nul
+    echo        已清空 memory 目录
+)
+
+:: Clear session files (no conversation history in release build)
+if exist "%APP_DIR%\default-openclaw\agents\main\sessions" (
+    del /Q "%APP_DIR%\default-openclaw\agents\main\sessions\*.jsonl" 2>nul
+    echo {"sessions":[]} > "%APP_DIR%\default-openclaw\agents\main\sessions\sessions.json"
+    echo        已清空 sessions 目录
+)
+
+echo        使用 default-openclaw 目录完成
 
 :: Step 5: Prepare packaged-openclaw (使用 PowerShell 脚本正确处理 pnpm 依赖)
 echo [5/10] 准备 packaged-openclaw 目录...

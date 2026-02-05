@@ -276,6 +276,9 @@ export class OpenClawApp extends LitElement {
   @state() agentModelsEditingId: string | null = null;
   @state() agentModelsEditForm: Partial<AgentModel> = {};
   @state() agentModelsSaving = false;
+  @state() agentModelsSyncing = false;
+  @state() agentModelsSyncError: string | null = null;
+  @state() agentModelsRestartPending = false;
   @state() logsLastFetchAt: number | null = null;
   @state() logsLimit = 500;
   @state() logsMaxBytes = 250_000;
@@ -606,7 +609,161 @@ export class OpenClawApp extends LitElement {
     this.agentModelsEditForm = {};
   }
 
-  handleAgentModelSave() {
+  /**
+   * Provider 配置映射：定义每个 provider 的默认 baseUrl 和 API 类型
+   */
+  private static readonly PROVIDER_CONFIG: Record<string, { baseUrl: string; api: string }> = {
+    openai: { baseUrl: "https://api.openai.com/v1", api: "openai-completions" },
+    anthropic: { baseUrl: "https://api.anthropic.com", api: "anthropic-messages" },
+    google: { baseUrl: "https://generativelanguage.googleapis.com/v1beta", api: "google-gemini" },
+    deepseek: { baseUrl: "https://api.deepseek.com/v1", api: "openai-completions" },
+    moonshot: { baseUrl: "https://api.moonshot.cn/v1", api: "openai-completions" },
+    zhipu: { baseUrl: "https://open.bigmodel.cn/api/paas/v4", api: "openai-completions" },
+    zai: { baseUrl: "https://open.bigmodel.cn/api/paas/v4", api: "openai-completions" },
+    qwen: { baseUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1", api: "openai-completions" },
+    minimax: { baseUrl: "https://api.minimax.chat/v1", api: "openai-completions" },
+    groq: { baseUrl: "https://api.groq.com/openai/v1", api: "openai-completions" },
+    xai: { baseUrl: "https://api.x.ai/v1", api: "openai-completions" },
+    mistral: { baseUrl: "https://api.mistral.ai/v1", api: "openai-completions" },
+    cerebras: { baseUrl: "https://api.cerebras.ai/v1", api: "openai-completions" },
+    openrouter: { baseUrl: "https://openrouter.ai/api/v1", api: "openai-completions" },
+    ollama: { baseUrl: "http://localhost:11434/v1", api: "openai-completions" },
+    azure: { baseUrl: "", api: "azure-openai" }, // Azure 需要用户自定义 baseUrl
+    baidu: { baseUrl: "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop", api: "openai-completions" },
+    custom: { baseUrl: "", api: "openai-completions" }, // 自定义 provider
+  };
+
+  /**
+   * 获取 provider 的配置（baseUrl 和 api 类型）
+   */
+  private getProviderConfig(provider: string, customBaseUrl?: string): { baseUrl: string; api: string } {
+    const normalizedProvider = provider.toLowerCase();
+    const config = OpenClawApp.PROVIDER_CONFIG[normalizedProvider] || { baseUrl: "", api: "openai-completions" };
+    return {
+      baseUrl: customBaseUrl?.trim() || config.baseUrl,
+      api: config.api,
+    };
+  }
+
+  /**
+   * 同步模型配置到 Gateway（通过 config.patch）
+   * 保存后需要重启 Gateway 才能生效
+   */
+  async syncModelsToGateway(): Promise<boolean> {
+    if (!this.client || !this.connected) {
+      this.agentModelsSyncError = "未连接到 Gateway";
+      return false;
+    }
+
+    this.agentModelsSyncing = true;
+    this.agentModelsSyncError = null;
+
+    try {
+      // 获取当前配置
+      const snapshot = await this.client.request<{
+        raw?: string;
+        hash?: string;
+        exists?: boolean;
+      }>("config.get", {});
+
+      if (!snapshot || !snapshot.exists) {
+        this.agentModelsSyncError = "无法获取当前配置";
+        return false;
+      }
+
+      // 解析当前配置
+      let currentConfig: Record<string, unknown> = {};
+      try {
+        currentConfig = JSON.parse(snapshot.raw || "{}");
+      } catch {
+        this.agentModelsSyncError = "配置文件格式错误";
+        return false;
+      }
+
+      // 获取活动模型
+      const activeModel = this.agentModelsData.models.find(
+        (m) => m.id === this.agentModelsData.activeModelId
+      );
+
+      // 构建所有已配置模型的 providers 配置
+      const providers: Record<string, unknown> = {};
+      
+      // 按 provider 分组处理所有模型
+      const modelsByProvider = new Map<string, typeof this.agentModelsData.models>();
+      for (const model of this.agentModelsData.models) {
+        const providerKey = model.provider.toLowerCase();
+        if (!modelsByProvider.has(providerKey)) {
+          modelsByProvider.set(providerKey, []);
+        }
+        modelsByProvider.get(providerKey)!.push(model);
+      }
+
+      // 为每个 provider 构建配置
+      for (const [providerKey, models] of modelsByProvider) {
+        // 使用第一个模型的配置作为 provider 级别配置
+        const firstModel = models[0];
+        const providerConfig = this.getProviderConfig(providerKey, firstModel.baseUrl);
+        
+        // 构建 models 数组
+        const modelsList = models.map(m => ({
+          id: m.modelId,
+          name: m.name,
+          reasoning: false,
+          input: ["text"] as string[],
+          contextWindow: 128000,
+          maxTokens: 8192,
+        }));
+
+        providers[providerKey] = {
+          baseUrl: providerConfig.baseUrl,
+          api: providerConfig.api,
+          // API Key 直接存储在 provider 配置中（最可靠的方式）
+          ...(firstModel.apiKey ? { apiKey: firstModel.apiKey } : {}),
+          models: modelsList,
+        };
+      }
+
+      // 构建完整的配置补丁
+      const currentAgents = (currentConfig.agents as Record<string, unknown>) || {};
+      const currentDefaults = (currentAgents.defaults as Record<string, unknown>) || {};
+      
+      const patch: Record<string, unknown> = {
+        models: {
+          providers,
+        },
+        agents: {
+          ...currentAgents,
+          defaults: {
+            ...currentDefaults,
+            // 设置主模型（如果有活动模型）
+            ...(activeModel ? {
+              model: {
+                primary: `${activeModel.provider}/${activeModel.modelId}`,
+              },
+            } : {}),
+          },
+        },
+      };
+
+      // 调用 config.patch 更新配置并触发重启
+      await this.client.request("config.patch", {
+        raw: JSON.stringify(patch),
+        baseHash: snapshot.hash,
+        restartDelayMs: 1000, // 1秒后重启
+        note: "模型配置更新",
+      });
+
+      this.agentModelsRestartPending = true;
+      return true;
+    } catch (err) {
+      this.agentModelsSyncError = `同步失败: ${String(err)}`;
+      return false;
+    } finally {
+      this.agentModelsSyncing = false;
+    }
+  }
+
+  async handleAgentModelSave() {
     const { name, provider, modelId, apiKey, baseUrl } = this.agentModelsEditForm;
     if (!name?.trim() || !provider?.trim() || !modelId?.trim()) return;
 
@@ -651,7 +808,12 @@ export class OpenClawApp extends LitElement {
         };
       }
 
+      // 保存到 localStorage
       saveAgentModels(this.agentModelsData);
+      
+      // 同步到 Gateway
+      await this.syncModelsToGateway();
+
       this.agentModelsEditingId = null;
       this.agentModelsEditForm = {};
     } finally {
@@ -659,7 +821,7 @@ export class OpenClawApp extends LitElement {
     }
   }
 
-  handleAgentModelDelete(modelId: string) {
+  async handleAgentModelDelete(modelId: string) {
     const newModels = this.agentModelsData.models.filter((m) => m.id !== modelId);
     const newActiveId =
       this.agentModelsData.activeModelId === modelId
@@ -671,14 +833,20 @@ export class OpenClawApp extends LitElement {
       activeModelId: newActiveId,
     };
     saveAgentModels(this.agentModelsData);
+    
+    // 同步到 Gateway
+    await this.syncModelsToGateway();
   }
 
-  handleAgentModelSetActive(modelId: string | null) {
+  async handleAgentModelSetActive(modelId: string | null) {
     this.agentModelsData = {
       ...this.agentModelsData,
       activeModelId: modelId,
     };
     saveAgentModels(this.agentModelsData);
+    
+    // 同步到 Gateway
+    await this.syncModelsToGateway();
   }
 
   handleAgentModelEditFormChange(field: keyof AgentModel, value: string) {

@@ -62,6 +62,7 @@ type GatewayHost = {
   execApprovalError: string | null;
   contentAuditApprovalQueue: ContentAuditApprovalRequest[];
   contentAuditApprovalError: string | null;
+  agentModelsRestartPending?: boolean;
 };
 
 type SessionDefaultsSnapshot = {
@@ -144,6 +145,10 @@ export function connectGateway(host: GatewayHost) {
       host.chatRunId = null;
       (host as unknown as { chatStream: string | null }).chatStream = null;
       (host as unknown as { chatStreamStartedAt: number | null }).chatStreamStartedAt = null;
+      // Clear model restart pending state after reconnection
+      if (host.agentModelsRestartPending) {
+        host.agentModelsRestartPending = false;
+      }
       resetToolStream(host as unknown as Parameters<typeof resetToolStream>[0]);
       void loadAssistantIdentity(host as unknown as OpenClawApp);
       void loadAgents(host as unknown as OpenClawApp);

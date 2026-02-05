@@ -502,12 +502,15 @@ export function renderApp(state: AppViewState) {
               editForm: state.agentModelsEditForm,
               lang: state.settings.lang,
               saving: state.agentModelsSaving,
+              syncing: state.agentModelsSyncing,
+              syncError: state.agentModelsSyncError,
+              restartPending: state.agentModelsRestartPending,
               onAdd: () => state.handleAgentModelAdd(),
               onEdit: (modelId) => state.handleAgentModelEdit(modelId),
               onCancelEdit: () => state.handleAgentModelCancelEdit(),
-              onSave: () => state.handleAgentModelSave(),
-              onDelete: (modelId) => state.handleAgentModelDelete(modelId),
-              onSetActive: (modelId) => state.handleAgentModelSetActive(modelId),
+              onSave: () => void state.handleAgentModelSave(),
+              onDelete: (modelId) => void state.handleAgentModelDelete(modelId),
+              onSetActive: (modelId) => void state.handleAgentModelSetActive(modelId),
               onEditFormChange: (field, value) => state.handleAgentModelEditFormChange(field, value),
             })
           : nothing}

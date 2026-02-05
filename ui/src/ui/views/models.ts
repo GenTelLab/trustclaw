@@ -8,6 +8,9 @@ export type ModelsPageProps = {
   editForm: Partial<AgentModel>;
   lang: Lang;
   saving: boolean;
+  syncing: boolean;
+  syncError: string | null;
+  restartPending: boolean;
   onAdd: () => void;
   onEdit: (modelId: string) => void;
   onCancelEdit: () => void;
@@ -28,9 +31,87 @@ const MODEL_PROVIDERS = [
   { value: "baidu", label: "文心一言" },
   { value: "azure", label: "Azure OpenAI" },
   { value: "google", label: "Google AI" },
+  { value: "groq", label: "Groq" },
+  { value: "xai", label: "xAI (Grok)" },
+  { value: "mistral", label: "Mistral AI" },
   { value: "ollama", label: "Ollama (本地)" },
+  { value: "openrouter", label: "OpenRouter" },
   { value: "custom", label: "自定义" },
 ];
+
+// Common model IDs for each provider
+const PROVIDER_MODELS: Record<string, { value: string; label: string }[]> = {
+  openai: [
+    { value: "gpt-4o", label: "GPT-4o" },
+    { value: "gpt-4o-mini", label: "GPT-4o Mini" },
+    { value: "gpt-4-turbo", label: "GPT-4 Turbo" },
+    { value: "gpt-4", label: "GPT-4" },
+    { value: "gpt-3.5-turbo", label: "GPT-3.5 Turbo" },
+    { value: "o1", label: "o1" },
+    { value: "o1-mini", label: "o1 Mini" },
+    { value: "o3-mini", label: "o3 Mini" },
+  ],
+  anthropic: [
+    { value: "claude-sonnet-4-20250514", label: "Claude Sonnet 4" },
+    { value: "claude-3-5-sonnet-20241022", label: "Claude 3.5 Sonnet" },
+    { value: "claude-3-5-haiku-20241022", label: "Claude 3.5 Haiku" },
+    { value: "claude-3-opus-20240229", label: "Claude 3 Opus" },
+  ],
+  moonshot: [
+    { value: "moonshot-v1-8k", label: "Moonshot v1 8K" },
+    { value: "moonshot-v1-32k", label: "Moonshot v1 32K" },
+    { value: "moonshot-v1-128k", label: "Moonshot v1 128K" },
+  ],
+  deepseek: [
+    { value: "deepseek-chat", label: "DeepSeek Chat (V3)" },
+    { value: "deepseek-reasoner", label: "DeepSeek R1 (Reasoner)" },
+  ],
+  zhipu: [
+    { value: "glm-4-flash", label: "GLM-4 Flash (免费)" },
+    { value: "glm-4-air", label: "GLM-4 Air" },
+    { value: "glm-4-plus", label: "GLM-4 Plus" },
+    { value: "glm-4", label: "GLM-4" },
+    { value: "glm-4-long", label: "GLM-4 Long (1M)" },
+    { value: "glm-4v-plus", label: "GLM-4V Plus (视觉)" },
+  ],
+  qwen: [
+    { value: "qwen-turbo", label: "Qwen Turbo" },
+    { value: "qwen-plus", label: "Qwen Plus" },
+    { value: "qwen-max", label: "Qwen Max" },
+    { value: "qwen-max-longcontext", label: "Qwen Max Long" },
+  ],
+  baidu: [
+    { value: "ernie-4.0-8k", label: "ERNIE 4.0 8K" },
+    { value: "ernie-3.5-8k", label: "ERNIE 3.5 8K" },
+    { value: "ernie-speed-8k", label: "ERNIE Speed 8K" },
+  ],
+  google: [
+    { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
+    { value: "gemini-1.5-pro", label: "Gemini 1.5 Pro" },
+    { value: "gemini-1.5-flash", label: "Gemini 1.5 Flash" },
+  ],
+  groq: [
+    { value: "llama-3.3-70b-versatile", label: "Llama 3.3 70B" },
+    { value: "llama-3.1-8b-instant", label: "Llama 3.1 8B" },
+    { value: "mixtral-8x7b-32768", label: "Mixtral 8x7B" },
+  ],
+  xai: [
+    { value: "grok-2", label: "Grok 2" },
+    { value: "grok-beta", label: "Grok Beta" },
+  ],
+  mistral: [
+    { value: "mistral-large-latest", label: "Mistral Large" },
+    { value: "mistral-medium-latest", label: "Mistral Medium" },
+    { value: "mistral-small-latest", label: "Mistral Small" },
+  ],
+  ollama: [
+    { value: "llama3.2", label: "Llama 3.2" },
+    { value: "llama3.1", label: "Llama 3.1" },
+    { value: "qwen2.5", label: "Qwen 2.5" },
+    { value: "deepseek-r1", label: "DeepSeek R1" },
+    { value: "phi3", label: "Phi-3" },
+  ],
+};
 
 function getTranslations(lang: Lang) {
   return lang === "zh"
@@ -49,6 +130,7 @@ function getTranslations(lang: Lang) {
         save: "保存",
         cancel: "取消",
         saving: "保存中...",
+        syncing: "同步中...",
         updated: "更新时间",
         namePlaceholder: "如: GPT-4 生产环境",
         modelIdPlaceholder: "如: gpt-4, claude-3-opus, moonshot-v1",
@@ -56,8 +138,15 @@ function getTranslations(lang: Lang) {
         baseUrlPlaceholder: "如: https://api.openai.com/v1",
         confirmDelete: "确定要删除此模型配置吗？",
         selectProvider: "选择提供商",
+        selectModel: "选择模型",
+        customModelId: "自定义模型 ID",
+        customProvider: "自定义提供商",
+        customProviderPlaceholder: "如: my-provider",
         modelsList: "模型列表",
         modelsListDesc: "管理 Agent 可用的大模型配置",
+        restartPending: "模型配置已更新，Gateway 正在重启中...",
+        restartPendingDesc: "请等待重启完成后再进行操作",
+        syncError: "同步失败",
       }
     : {
         addModel: "Add Model",
@@ -74,6 +163,7 @@ function getTranslations(lang: Lang) {
         save: "Save",
         cancel: "Cancel",
         saving: "Saving...",
+        syncing: "Syncing...",
         updated: "Updated",
         namePlaceholder: "e.g., GPT-4 Production",
         modelIdPlaceholder: "e.g., gpt-4, claude-3-opus, moonshot-v1",
@@ -81,8 +171,15 @@ function getTranslations(lang: Lang) {
         baseUrlPlaceholder: "e.g., https://api.openai.com/v1",
         confirmDelete: "Are you sure you want to delete this model configuration?",
         selectProvider: "Select Provider",
+        selectModel: "Select Model",
+        customModelId: "Custom Model ID",
+        customProvider: "Custom Provider",
+        customProviderPlaceholder: "e.g., my-provider",
         modelsList: "Model List",
         modelsListDesc: "Manage available LLM configurations for Agent",
+        restartPending: "Model config updated, Gateway is restarting...",
+        restartPendingDesc: "Please wait for restart to complete",
+        syncError: "Sync failed",
       };
 }
 
@@ -109,6 +206,10 @@ function getProviderLabel(provider: string): string {
 
 function renderEditForm(props: ModelsPageProps, t: ReturnType<typeof getTranslations>) {
   const { editForm, saving, onEditFormChange, onSave, onCancelEdit } = props;
+  const providerModels = editForm.provider ? PROVIDER_MODELS[editForm.provider] : undefined;
+  const hasPresetModels = providerModels && providerModels.length > 0;
+  // Check if current provider is a known preset or custom
+  const isCustomProvider = editForm.provider && !MODEL_PROVIDERS.some(p => p.value === editForm.provider) || editForm.provider === "custom";
 
   return html`
     <div class="models-form card">
@@ -125,7 +226,11 @@ function renderEditForm(props: ModelsPageProps, t: ReturnType<typeof getTranslat
         <div class="field">
           <span>${t.provider}</span>
           <select
-            @change=${(e: Event) => onEditFormChange("provider", (e.target as HTMLSelectElement).value)}
+            @change=${(e: Event) => {
+              const value = (e.target as HTMLSelectElement).value;
+              // If selecting "custom", clear the provider to show input
+              onEditFormChange("provider", value === "custom" ? "" : value);
+            }}
           >
             <option value="" ?selected=${!editForm.provider}>${t.selectProvider}</option>
             ${MODEL_PROVIDERS.map(
@@ -133,15 +238,55 @@ function renderEditForm(props: ModelsPageProps, t: ReturnType<typeof getTranslat
             )}
           </select>
         </div>
+        ${editForm.provider === "" || isCustomProvider
+          ? html`
+              <div class="field">
+                <span>${t.customProvider}</span>
+                <input
+                  type="text"
+                  value=${isCustomProvider && editForm.provider !== "custom" ? editForm.provider : ""}
+                  @input=${(e: Event) => onEditFormChange("provider", (e.target as HTMLInputElement).value)}
+                  placeholder=${t.customProviderPlaceholder}
+                />
+              </div>
+            `
+          : nothing}
         <div class="field">
           <span>${t.modelId}</span>
-          <input
-            type="text"
-            value=${editForm.modelId ?? ""}
-            @input=${(e: Event) => onEditFormChange("modelId", (e.target as HTMLInputElement).value)}
-            placeholder=${t.modelIdPlaceholder}
-          />
+          ${hasPresetModels
+            ? html`
+                <select
+                  @change=${(e: Event) => onEditFormChange("modelId", (e.target as HTMLSelectElement).value)}
+                >
+                  <option value="" ?selected=${!editForm.modelId}>${t.selectModel}</option>
+                  ${providerModels.map(
+                    (m) => html`<option value=${m.value} ?selected=${editForm.modelId === m.value}>${m.label}</option>`,
+                  )}
+                  <option value="__custom__" ?selected=${editForm.modelId && !providerModels.some(m => m.value === editForm.modelId)}>${t.customModelId}</option>
+                </select>
+              `
+            : html`
+                <input
+                  type="text"
+                  value=${editForm.modelId ?? ""}
+                  @input=${(e: Event) => onEditFormChange("modelId", (e.target as HTMLInputElement).value)}
+                  placeholder=${t.modelIdPlaceholder}
+                />
+              `}
         </div>
+        ${hasPresetModels && editForm.modelId && !providerModels.some(m => m.value === editForm.modelId)
+          ? html`
+              <div class="field">
+                <span>${t.customModelId}</span>
+                <input
+                  type="text"
+                  value=${editForm.modelId ?? ""}
+                  @input=${(e: Event) => onEditFormChange("modelId", (e.target as HTMLInputElement).value)}
+                  placeholder=${t.modelIdPlaceholder}
+                />
+              </div>
+            `
+          : nothing}
         <div class="field">
           <span>${t.apiKey}</span>
           <input
@@ -245,12 +390,33 @@ function renderModelCard(
 
 export function renderModels(props: ModelsPageProps) {
   const t = getTranslations(props.lang);
-  const { data, editingModelId, onAdd } = props;
+  const { data, editingModelId, onAdd, syncing, syncError, restartPending } = props;
   const models = data?.models ?? [];
   const isAddingNew = editingModelId === "new";
+  const isDisabled = syncing || restartPending;
 
   return html`
     <div class="models-page">
+      ${restartPending
+        ? html`
+            <div class="models-restart-banner">
+              <div class="models-restart-banner__icon">⏳</div>
+              <div class="models-restart-banner__content">
+                <div class="models-restart-banner__title">${t.restartPending}</div>
+                <div class="models-restart-banner__desc">${t.restartPendingDesc}</div>
+              </div>
+            </div>
+          `
+        : nothing}
+
+      ${syncError
+        ? html`
+            <div class="models-error-banner">
+              <strong>${t.syncError}:</strong> ${syncError}
+            </div>
+          `
+        : nothing}
+
       <section class="card">
         <div class="card-header">
           <div>
@@ -260,9 +426,9 @@ export function renderModels(props: ModelsPageProps) {
           <button
             class="btn primary"
             @click=${onAdd}
-            ?disabled=${editingModelId !== null}
+            ?disabled=${editingModelId !== null || isDisabled}
           >
-            ${icons.plus} ${t.addModel}
+            ${syncing ? t.syncing : `${icons.plus} ${t.addModel}`}
           </button>
         </div>
       </section>
@@ -279,7 +445,7 @@ export function renderModels(props: ModelsPageProps) {
           `
         : nothing}
 
-      <div class="models-grid">
+      <div class="models-grid ${isDisabled ? 'models-grid--disabled' : ''}">
         ${models.map((model) => renderModelCard(model, props, t))}
       </div>
     </div>
