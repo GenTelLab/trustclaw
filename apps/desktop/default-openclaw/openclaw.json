@@ -63,11 +63,6 @@
     "enabled": true,
     "slots": {
       "memory": "none"
-    },
-    "entries": {
-      "qwen-portal-auth": {
-        "enabled": true
-      }
     }
   }
 }

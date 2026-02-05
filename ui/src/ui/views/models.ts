@@ -428,7 +428,7 @@ export function renderModels(props: ModelsPageProps) {
             @click=${onAdd}
             ?disabled=${editingModelId !== null || isDisabled}
           >
-            ${syncing ? t.syncing : `${icons.plus} ${t.addModel}`}
+            ${syncing ? t.syncing : html`${icons.plus} ${t.addModel}`}
           </button>
         </div>
       </section>
