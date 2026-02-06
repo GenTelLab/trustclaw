@@ -1,14 +1,14 @@
 [English](README-EN.md) | [中文](README.md)
 
-# TrustClaw 安全审计版
+# TrustClaw 可信审计版OpenClaw
 
 <p align="center">
   <img src="apps/desktop/renderer/logo.png" alt="TrustClaw Logo" width="120" />
 </p>
 
 <p align="center">
-  <strong>AI 安全审计终端智能体</strong><br>
-  一站式管理 AI 工具调用的安全检测、模型配置和技能扩展
+  <strong>「贾维斯」本地进化中枢</strong><br>
+  一个能管理、会拓展、可信任的AI工作伙伴
 </p>
 
 ---
