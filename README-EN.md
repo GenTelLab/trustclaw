@@ -25,7 +25,7 @@
 
 ### 📮 How to Claim
 
-Visit the **[Free Token Claim Channel](https://github.com/IrvinZheng/trustclaw_security/issues/1)**, leave your information in the required format, and we will review and send the Token via email within 0-3 business days.
+Visit the **[Free Token Claim Channel](https://github.com/GenTelLab/trustclaw/issues/1)**, leave your information in the required format, and we will review and send the Token via email within 0-3 business days.
 
 <p align="center">
   <a href="https://github.com/IrvinZheng/openclaw_security/issues/1">
@@ -448,9 +448,9 @@ open ./my-snake-game/index.html
 
 ## 📞 Get Help
 
-- 📖 [TrustClaw Documentation](https://docs.trustclaw.ai)
-- 🐛 [Report Issues](https://github.com/IrvinZheng/trustclaw_security/issues)
-- 💬 [Community Discussions](https://github.com/IrvinZheng/trustclaw_security/discussions)
+- 📖 [openclaw Documentation](https://docs.openclaw.ai)
+- 🐛 [Report Issues](https://github.com/GenTelLab/trustclaw/issues)
+- 💬 [Community Discussions](https://github.com/GenTelLab/trustclaw/discussions)
 
 ---
 
