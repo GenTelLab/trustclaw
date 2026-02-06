@@ -71,7 +71,7 @@
 2. **安装应用**
    - 双击打开 DMG 文件
    - 将应用拖拽到 Applications 文件夹
-   - 首次打开时，右键选择「打开」以绕过 Gatekeeper
+   - 需要执行命令行：```xattr -cr /Applications/TrustClaw.app```
 
 ---
 
