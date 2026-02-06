@@ -449,8 +449,8 @@ open ./my-snake-game/index.html
 ## 📞 获取帮助
 
 - 📖 [openclaw文档](https://docs.openclaw.ai)
-- 🐛 [报告问题](https://github.com/IrvinZheng/trustclaw_security/issues)
-- 💬 [社区讨论](https://github.com/IrvinZheng/trustclaw_security/discussions)
+- 🐛 [报告问题](https://github.com/GenTelLab/trustclaw/issues)
+- 💬 [社区讨论](https://github.com/GenTelLab/trustclaw/discussions)
 
 ---
 
