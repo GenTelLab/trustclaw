@@ -1,14 +1,14 @@
 [English](README-EN.md) | [中文](README.md)
 
-# TrustClaw Security Audit
+# TrustClaw Trustworthy Audit Edition OpenClaw
 
 <p align="center">
   <img src="apps/desktop/renderer/logo.png" alt="TrustClaw Logo" width="120" />
 </p>
 
 <p align="center">
-  <strong>AI Security Audit Terminal Agent</strong><br>
-  One-stop management for AI tool call security detection, model configuration, and skill extensions
+  <strong>Local Evolution Hub</strong><br>
+  A manageable, scalable and trustworthy AI work partner
 </p>
 
 ---
