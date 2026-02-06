@@ -43,7 +43,7 @@
    
    从 [Releases](../../releases) 页面下载最新版本：
    ```
-   TrustClaw-SecurityAudit-Setup-2026.x.xx.exe
+   TrustClaw-Setup-2026.x.xx.exe
    ```
 
 2. **运行安装程序**
@@ -64,8 +64,8 @@
 
 1. **下载 DMG**
    ```
-   TrustClaw-SecurityAudit-2026.x.xx-arm64.dmg  # Apple Silicon
-   TrustClaw-SecurityAudit-2026.x.xx-x64.dmg    # Intel
+   TrustClaw-2026.x.xx-arm64.dmg  # Apple Silicon
+   TrustClaw-2026.x.xx-x64.dmg    # Intel
    ```
 
 2. **安装应用**
