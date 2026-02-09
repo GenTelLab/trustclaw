@@ -28,7 +28,7 @@
 前往 **[免费 Token 领取通道](https://github.com/GenTelLab/trustclaw/issues/1)**，按格式留下你的信息，我们会在 0-3 个工作日内审核并通过邮件发送 Token。
 
 <p align="center">
-  <a href="https://github.com/IrvinZheng/openclaw_security/issues/1">
+  <a href="https://github.com/GenTelLab/trustclaw/issues/1">
     <img src="https://img.shields.io/badge/🎁_立即领取免费Token-点击前往-brightgreen?style=for-the-badge" alt="领取免费Token" />
   </a>
 </p>
@@ -39,11 +39,12 @@
 
 ### Windows 用户
 
+
 1. **下载安装包**
    
    从 [Releases](../../releases) 页面下载最新版本：
    ```
-   TrustClaw-SecurityAudit-Setup-2026.x.xx.exe
+   TrustClaw-Setup-2026.x.xx.exe
    ```
 
 2. **运行安装程序**
@@ -51,7 +52,7 @@
    - 双击 `.exe` 文件启动安装向导
    - 选择安装目录（默认即可）
    - 点击「安装」等待完成
-   - 勾选「运行 TrustClaw SecurityAudit」后点击「完成」
+   - 勾选「运行 TrustClaw」后点击「完成」
 
 3. **首次启动**
    
@@ -64,8 +65,8 @@
 
 1. **下载 DMG**
    ```
-   TrustClaw-SecurityAudit-2026.x.xx-arm64.dmg  # Apple Silicon
-   TrustClaw-SecurityAudit-2026.x.xx-x64.dmg    # Intel
+   TrustClaw-2026.x.xx-arm64.dmg  # Apple Silicon
+   TrustClaw-2026.x.xx-x64.dmg    # Intel
    ```
 
 2. **安装应用**
@@ -90,8 +91,8 @@
 ### 步骤一：克隆仓库
 
 ```bash
-git clone https://github.com/IrvinZheng/trustclaw_security.git
-cd trustclaw_security
+git clone https://github.com/GenTelLab/trustclaw.git
+cd trustclaw
 ```
 
 ### 步骤二：安装依赖
@@ -150,7 +151,7 @@ npm run dev
 ### 目录结构
 
 ```
-trustclaw_security/
+trustclaw/
 ├── src/                    # 核心源代码
 │   ├── cli/                # CLI 命令
 │   ├── gateway/            # Gateway 服务
@@ -230,7 +231,7 @@ npm install
 确保已完成主项目构建：
 
 ```bash
-cd /path/to/trustclaw_security
+cd /path/to/trustclaw
 pnpm build
 ```
 

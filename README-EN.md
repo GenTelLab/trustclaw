@@ -28,7 +28,7 @@
 Visit the **[Free Token Claim Channel](https://github.com/GenTelLab/trustclaw/issues/1)**, leave your information in the required format, and we will review and send the Token via email within 0-3 business days.
 
 <p align="center">
-  <a href="https://github.com/IrvinZheng/openclaw_security/issues/1">
+  <a href="https://github.com/GenTelLab/trustclaw/issues/1">
     <img src="https://img.shields.io/badge/🎁_Claim_Free_Token-Click_Here-brightgreen?style=for-the-badge" alt="Claim Free Token" />
   </a>
 </p>
@@ -43,7 +43,7 @@ Visit the **[Free Token Claim Channel](https://github.com/GenTelLab/trustclaw/is
    
    Download the latest version from [Releases](../../releases):
    ```
-   TrustClaw-SecurityAudit-Setup-2026.x.xx.exe
+   TrustClaw-Setup-2026.x.xx.exe
    ```
 
 2. **Run Installer**
@@ -51,7 +51,7 @@ Visit the **[Free Token Claim Channel](https://github.com/GenTelLab/trustclaw/is
    - Double-click the `.exe` file to start the setup wizard
    - Choose installation directory (default is fine)
    - Click "Install" and wait for completion
-   - Check "Run TrustClaw SecurityAudit" and click "Finish"
+   - Check "Run TrustClaw" and click "Finish"
 
 3. **First Launch**
    
@@ -64,8 +64,8 @@ Visit the **[Free Token Claim Channel](https://github.com/GenTelLab/trustclaw/is
 
 1. **Download DMG**
    ```
-   TrustClaw-SecurityAudit-2026.x.xx-arm64.dmg  # Apple Silicon
-   TrustClaw-SecurityAudit-2026.x.xx-x64.dmg    # Intel
+   TrustClaw-2026.x.xx-arm64.dmg  # Apple Silicon
+   TrustClaw-2026.x.xx-x64.dmg    # Intel
    ```
 
 2. **Install Application**
@@ -90,8 +90,8 @@ If you want to run from source or contribute to development:
 ### Step 1: Clone Repository
 
 ```bash
-git clone https://github.com/IrvinZheng/trustclaw_security.git
-cd trustclaw_security
+git clone https://github.com/GenTelLab/trustclaw.git
+cd trustclaw
 ```
 
 ### Step 2: Install Dependencies
@@ -150,7 +150,7 @@ npm run dev
 ### Directory Structure
 
 ```
-trustclaw_security/
+trustclaw/
 ├── src/                    # Core source code
 │   ├── cli/                # CLI commands
 │   ├── gateway/            # Gateway service
@@ -230,7 +230,7 @@ npm install
 Ensure main project is built:
 
 ```bash
-cd /path/to/trustclaw_security
+cd /path/to/trustclaw
 pnpm build
 ```
 
